@@ -1,53 +1,18 @@
-const http = require("http");
-const PORT = 3000;
+const express = require("express");
+const app = express();
 
-const server = http.createServer((req, res) => {
+app.use(express.text());
 
-  if (req.method === "POST" && (req.url === "/gsm" || req.url === "/temperature")) {
-    let body = "";
-
-    req.on("data", chunk => {
-      body += chunk.toString();
-    });
-
-    req.on("end", () => {
-      console.log("=================================");
-      console.log("Received data from GSM:");
-      console.log(body);
-      console.log("=================================");
-
-      const responseBody = "OK\n";
-
-      res.writeHead(200, {
-        "Content-Type": "text/plain",
-        "Content-Length": Buffer.byteLength(responseBody),
-        "Connection": "close"
-      });
-
-      res.end(responseBody);
-    });
-
-    return;
-  }
-
-  if (req.method === "GET" && req.url === "/") {
-    const msg = "Gateway is running\n";
-    res.writeHead(200, {
-      "Content-Type": "text/plain",
-      "Content-Length": Buffer.byteLength(msg),
-      "Connection": "close"
-    });
-    res.end(msg);
-    return;
-  }
-
-  res.writeHead(404, {
-    "Content-Type": "text/plain",
-    "Connection": "close"
-  });
-  res.end("Not Found\n");
+app.post("/gsm", (req, res) => {
+  console.log("DATA:", req.body);
+  res.send("OK");
 });
 
-server.listen(PORT, () => {
-  console.log(`Gateway listening on port ${PORT}`);
+app.get("/", (req, res) => {
+  res.send("Server is running");
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log("Server started on port", PORT);
 });
